@@ -99,8 +99,8 @@ export async function lookupCitizen(
 		}
 
 		await setPending(profile);
-		// Mock OTP "send": in a real build this would call the OTP provider.
-		// We accept any 6 digits on the next screen.
+		// OTP is sent separately (generateOtp) when the user taps
+		// "Send OTP & Continue", so they can confirm the name first.
 
 		// Return the resolved name so Screen 1 can confirm identity up-front —
 		// the name is derived from the lookup, never typed by the user.
@@ -115,14 +115,4 @@ export async function lookupCitizen(
 			error: "We couldn't verify your ID right now. Please try again.",
 		};
 	}
-}
-
-/** Re-send the (mock) OTP. Returns the masked destination for display. */
-export async function resendOtp(): Promise<LookupResult> {
-	const { getPending } = await import("@/app/_lib/session");
-	const pending = await getPending();
-	if (!pending) {
-		return { success: false, error: "Session expired. Start again." };
-	}
-	return { success: true, maskedPhone: maskPhone(pending.phone) };
 }

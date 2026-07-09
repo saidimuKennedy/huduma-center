@@ -8,6 +8,7 @@ import { PrimaryButton, Note, FieldLabel } from "@/app/_components/ui";
 import { usePhone } from "@/app/_lib/usePhone";
 import { isValidNationalId, maskId } from "@/app/_lib/format";
 import { lookupCitizen } from "@/app/actions/lookup";
+import { generateOtp } from "@/app/actions/otp";
 
 export default function VerifyIdentityPage() {
 	const router = useRouter();
@@ -20,6 +21,7 @@ export default function VerifyIdentityPage() {
 	const [found, setFound] = useState<{ name: string; masked: string } | null>(
 		null,
 	);
+	const [sending, setSending] = useState(false);
 
 	const canSubmit = isValidNationalId(idNumber) && !loading;
 
@@ -40,7 +42,15 @@ export default function VerifyIdentityPage() {
 		});
 	}
 
-	function onContinue() {
+	async function onContinue() {
+		setError(null);
+		setSending(true);
+		const res = await generateOtp(phone);
+		setSending(false);
+		if (!res.success) {
+			setError(res.error ?? "Couldn't send the code. Please try again.");
+			return;
+		}
 		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
 		router.push(`/verify${q}`);
 	}
@@ -92,8 +102,14 @@ export default function VerifyIdentityPage() {
 						</Note>
 					</div>
 
+					{error && (
+						<p className="mt-4 text-center text-sm text-red-600">
+							{error}
+						</p>
+					)}
+
 					<div className="mt-auto pt-8">
-						<PrimaryButton onClick={onContinue}>
+						<PrimaryButton onClick={onContinue} loading={sending}>
 							Send OTP &amp; Continue
 						</PrimaryButton>
 						<button

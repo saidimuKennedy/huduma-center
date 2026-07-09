@@ -6,8 +6,7 @@ import { LockKeyhole, BadgeCheck, RotateCw } from "lucide-react";
 import BookingShell from "@/app/_components/BookingShell";
 import { PrimaryButton, Note } from "@/app/_components/ui";
 import { usePhone } from "@/app/_lib/usePhone";
-import { verifyOtp } from "@/app/actions/otp";
-import { resendOtp } from "@/app/actions/lookup";
+import { verifyOtp, generateOtp } from "@/app/actions/otp";
 
 const OTP_LENGTH = 6;
 const EXPIRY_SECONDS = 120;
@@ -41,7 +40,8 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 	}, []);
 
 	function setDigit(i: number, value: string) {
-		const v = value.replace(/\D/g, "");
+		// Pesaflow codes are uppercase alphanumeric — keep letters and digits.
+		const v = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 		setError(null);
 		if (v.length > 1) {
 			// paste
@@ -85,7 +85,10 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 		setDigits(Array(OTP_LENGTH).fill(""));
 		setRemaining(EXPIRY_SECONDS);
 		inputs.current[0]?.focus();
-		await resendOtp();
+		const res = await generateOtp(phone);
+		if (!res.success) {
+			setError(res.error ?? "Couldn't resend the code.");
+		}
 	}
 
 	return (
@@ -104,7 +107,7 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 					Enter verification code
 				</h2>
 				<p className="mt-2 text-center text-sm leading-relaxed text-muted">
-					We sent a 6-digit OTP to{" "}
+					We sent a 6-character code to{" "}
 					<span className="font-semibold text-ink">{maskedPhone}</span>
 					. Enter it below to continue.
 				</p>
@@ -117,12 +120,14 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 								inputs.current[i] = el;
 							}}
 							type="text"
-							inputMode="numeric"
+							inputMode="text"
+							autoCapitalize="characters"
+							autoComplete={i === 0 ? "one-time-code" : "off"}
 							maxLength={i === 0 ? OTP_LENGTH : 1}
 							value={d}
 							onChange={e => setDigit(i, e.target.value)}
 							onKeyDown={e => onKeyDown(i, e)}
-							className="h-14 w-full rounded-xl border border-line bg-white text-center text-xl font-semibold text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-tint"
+							className="h-14 w-full rounded-xl border border-line bg-white text-center text-xl font-semibold uppercase text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-tint"
 						/>
 					))}
 				</div>

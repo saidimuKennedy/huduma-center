@@ -29,6 +29,14 @@ export function getLookupMode(): "mock" | "live" {
 }
 
 /**
+ * OTP mode. "live" sends/validates real codes via the Pesaflow USSD gateway
+ * (same API_URL). "mock" accepts any 6 characters without sending.
+ */
+export function getOtpMode(): "mock" | "live" {
+	return process.env.OTP_MODE === "live" ? "live" : "mock";
+}
+
+/**
  * Chatnation Meta proxy config for sending WhatsApp messages (same integration
  * pssf/tax_webviews use). Throws if unset — the confirmation send is real.
  */
