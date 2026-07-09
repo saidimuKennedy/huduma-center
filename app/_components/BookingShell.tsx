@@ -50,11 +50,10 @@ export default function BookingShell({
 			</header>
 
 			{/* Content */}
-			<main className="flex flex-1 flex-col px-5 py-6">{children}</main>
+			<main className="flex flex-1 flex-col px-5 py-6 pb-32">{children}</main>
 
 			{/* Progress footer */}
-			<footer className="px-5 pb-6">
-				<FooterActionCard />
+			<footer className="px-5 pb-28">
 				<div className="flex items-center gap-3">
 					<span className="text-xs font-semibold text-brand">
 						{num}/{TOTAL_STEPS}
@@ -71,6 +70,8 @@ export default function BookingShell({
 					</span>
 				</div>
 			</footer>
+
+			<FooterActionCard />
 		</div>
 	);
 }

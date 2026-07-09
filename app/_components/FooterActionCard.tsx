@@ -1,96 +1,91 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-	ChevronUp,
+	Bot,
+	Clock,
 	HelpCircle,
-	Headphones,
 	LayoutGrid,
-	ArrowLeft,
+	Mail,
+	MapPin,
+	MessageCircle,
+	Phone,
 } from "lucide-react";
 import { usePhone } from "@/app/_lib/usePhone";
 import { returnToMainMenu } from "@/app/actions/booking";
 
+type Panel = "help" | "agent" | null;
+
 const FAQ_ITEMS = [
 	{
 		q: "How do I book an appointment?",
-		a: "Verify your ID, enter the OTP sent to your phone, choose your service and centre, then confirm.",
+		a: "Verify your ID, enter the OTP, choose your service and centre, then confirm.",
 	},
 	{
 		q: "What should I bring?",
-		a: "Bring your original National ID and any documents required for the service you selected.",
-	},
-	{
-		q: "Can I change my appointment?",
-		a: "Return to the main menu and start a new booking, or call the Huduma Contact Centre for help.",
+		a: "Bring your original National ID and documents for your selected service.",
 	},
 ];
 
-function ActionButton({
+function DockItem({
 	icon: Icon,
 	label,
+	active,
 	onClick,
+}: {
+	icon: React.ElementType;
+	label: string;
+	active: boolean;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={`flex min-w-0 flex-1 flex-col items-center gap-1.5 px-2 py-1 transition-colors ${
+				active ? "text-hgreen" : "text-muted"
+			}`}
+		>
+			<Icon className="h-6 w-6" strokeWidth={1.75} />
+			<span className="text-center text-[11px] font-medium leading-tight">
+				{label}
+			</span>
+		</button>
+	);
+}
+
+function ContactTile({
+	icon: Icon,
+	label,
 	href,
 }: {
 	icon: React.ElementType;
 	label: string;
-	onClick?: () => void;
-	href?: string;
+	href: string;
 }) {
-	const content = (
-		<>
-			<span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-brand">
+	return (
+		<a
+			href={href}
+			className="flex flex-1 flex-col items-center gap-2 rounded-2xl border border-line bg-white px-3 py-4 transition-colors active:bg-surface"
+		>
+			<span className="flex h-10 w-10 items-center justify-center rounded-xl bg-success-tint text-hgreen">
 				<Icon className="h-5 w-5" />
 			</span>
-			<span className="text-[11px] font-semibold text-navy">{label}</span>
-		</>
-	);
-
-	const className =
-		"flex min-w-0 flex-1 flex-col items-center gap-1.5 px-2 py-1 transition-opacity active:opacity-70";
-
-	if (href) {
-		return (
-			<a href={href} className={className}>
-				{content}
-			</a>
-		);
-	}
-
-	return (
-		<button type="button" onClick={onClick} className={className}>
-			{content}
-		</button>
+			<span className="text-sm font-medium text-ink">{label}</span>
+		</a>
 	);
 }
 
 export default function FooterActionCard() {
 	const router = useRouter();
 	const phone = usePhone();
-	const rootRef = useRef<HTMLDivElement>(null);
-	const [open, setOpen] = useState(false);
-	const [showFaq, setShowFaq] = useState(false);
+	const [panel, setPanel] = useState<Panel>(null);
 
 	const homeHref = phone ? `/?phone=${encodeURIComponent(phone)}` : "/";
 
-	useEffect(() => {
-		if (!open) return;
-		function onPointerDown(e: PointerEvent) {
-			if (!rootRef.current?.contains(e.target as Node)) {
-				setOpen(false);
-				setShowFaq(false);
-			}
-		}
-		document.addEventListener("pointerdown", onPointerDown);
-		return () => document.removeEventListener("pointerdown", onPointerDown);
-	}, [open]);
-
-	function toggleOpen() {
-		setOpen(o => {
-			if (o) setShowFaq(false);
-			return !o;
-		});
+	function togglePanel(next: Panel) {
+		setPanel(current => (current === next ? null : next));
 	}
 
 	async function onMenu() {
@@ -99,91 +94,127 @@ export default function FooterActionCard() {
 	}
 
 	return (
-		<div ref={rootRef} className="mb-3">
-			<div
-				className={`overflow-hidden rounded-2xl border border-line bg-white shadow-[0_4px_20px_rgba(16,34,78,0.08)] transition-shadow ${
-					open ? "shadow-[0_8px_28px_rgba(16,34,78,0.12)]" : ""
-				}`}
-			>
-				{open && (
-					<div className="border-b border-line px-4 pt-4 pb-3">
-						{showFaq ? (
+		<div className="fixed inset-x-0 bottom-0 z-50">
+			<div className="mx-auto w-full max-w-md">
+				{panel && (
+					<div className="border-x border-t border-line bg-white px-4 pt-4 pb-3">
+						<div className="mb-3 flex justify-center">
+							<div className="h-1 w-10 rounded-full bg-line" />
+						</div>
+
+						{panel === "help" && (
 							<div>
-								<button
-									type="button"
-									onClick={() => setShowFaq(false)}
-									className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-brand"
-								>
-									<ArrowLeft className="h-3.5 w-3.5" />
-									Back
-								</button>
-								<p className="mb-2 text-xs font-bold text-navy">
-									Help &amp; FAQ
+								<p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+									Help &amp; Support
 								</p>
-								<ul className="space-y-2.5">
+								<ul className="mt-3 space-y-2.5">
 									{FAQ_ITEMS.map(item => (
 										<li key={item.q}>
-											<p className="text-xs font-semibold text-ink">
+											<p className="text-sm font-semibold text-ink">
 												{item.q}
 											</p>
-											<p className="mt-0.5 text-[11px] leading-snug text-muted">
+											<p className="mt-0.5 text-xs leading-snug text-muted">
 												{item.a}
 											</p>
 										</li>
 									))}
 								</ul>
-								<p className="mt-3 text-[11px] text-muted">
-									Call{" "}
-									<a
+								<div className="mt-4 flex gap-2">
+									<ContactTile
+										icon={Phone}
+										label="Call"
 										href="tel:0206900020"
-										className="font-semibold text-brand"
-									>
-										020 690 0020
-									</a>{" "}
-									or{" "}
-									<a
-										href="tel:1919"
-										className="font-semibold text-brand"
-									>
-										1919
-									</a>
-								</p>
+									/>
+									<ContactTile
+										icon={Mail}
+										label="Email"
+										href="mailto:info@hudumakenya.go.ke"
+									/>
+									<ContactTile
+										icon={MessageCircle}
+										label="WhatsApp"
+										href="https://wa.me/254706900020"
+									/>
+								</div>
 							</div>
-						) : (
-							<div className="flex items-start justify-between gap-2">
-								<ActionButton
-									icon={HelpCircle}
-									label="Help"
-									onClick={() => setShowFaq(true)}
-								/>
-								<ActionButton
-									icon={LayoutGrid}
-									label="Menu"
-									onClick={onMenu}
-								/>
-								<ActionButton
-									icon={Headphones}
-									label="Agent"
-									href="tel:0206900020"
-								/>
+						)}
+
+						{panel === "agent" && (
+							<div>
+								<p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+									Contact Support
+								</p>
+								<div className="mt-3 flex gap-2">
+									<ContactTile
+										icon={Phone}
+										label="Call"
+										href="tel:0206900020"
+									/>
+									<ContactTile
+										icon={Mail}
+										label="Email"
+										href="mailto:info@hudumakenya.go.ke"
+									/>
+									<ContactTile
+										icon={MessageCircle}
+										label="WhatsApp"
+										href="https://wa.me/254706900020"
+									/>
+								</div>
+								<div className="mt-3 flex items-start gap-3 rounded-2xl border border-line bg-surface px-3.5 py-3">
+									<MapPin className="mt-0.5 h-5 w-5 shrink-0 text-hgreen" />
+									<div>
+										<p className="text-sm font-semibold text-ink">
+											GPO Nairobi Huduma Centre
+										</p>
+										<p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+											<Clock className="h-3.5 w-3.5" />
+											Mon–Fri 8am–5pm · Sat 8am–1pm
+										</p>
+										<a
+											href="tel:0206900020"
+											className="mt-1 block text-xs font-semibold text-hgreen"
+										>
+											020 690 0020
+										</a>
+									</div>
+								</div>
 							</div>
 						)}
 					</div>
 				)}
 
-				<button
-					type="button"
-					onClick={toggleOpen}
-					aria-expanded={open}
-					className="flex w-full items-center justify-center gap-2 py-3 text-xs font-semibold text-muted transition-colors active:bg-surface"
-				>
-					<ChevronUp
-						className={`h-4 w-4 transition-transform duration-200 ${
-							open ? "rotate-0" : "rotate-180"
-						}`}
-					/>
-					{open ? "Close" : "Quick actions"}
-				</button>
+				<div className="rounded-t-2xl border-t border-line bg-white shadow-[0_-8px_30px_rgba(16,34,78,0.1)]">
+					<button
+						type="button"
+						onClick={() => setPanel(p => (p ? null : "help"))}
+						aria-expanded={panel !== null}
+						aria-label={panel ? "Collapse footer" : "Expand footer"}
+						className="flex w-full justify-center py-2.5"
+					>
+						<div className="h-1 w-10 rounded-full bg-line" />
+					</button>
+					<div className="flex px-2 pb-4">
+						<DockItem
+							icon={HelpCircle}
+							label="Help & Support"
+							active={panel === "help"}
+							onClick={() => togglePanel("help")}
+						/>
+						<DockItem
+							icon={Bot}
+							label="Connect Agent"
+							active={panel === "agent"}
+							onClick={() => togglePanel("agent")}
+						/>
+						<DockItem
+							icon={LayoutGrid}
+							label="Menu"
+							active={false}
+							onClick={onMenu}
+						/>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
