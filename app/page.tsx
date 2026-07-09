@@ -1,65 +1,175 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { BadgeCheck, IdCard, UserCheck } from "lucide-react";
+import BookingShell from "@/app/_components/BookingShell";
+import { PrimaryButton, Note, FieldLabel } from "@/app/_components/ui";
+import { usePhone } from "@/app/_lib/usePhone";
+import { isValidNationalId, maskId } from "@/app/_lib/format";
+import { lookupCitizen } from "@/app/actions/lookup";
+
+export default function VerifyIdentityPage() {
+	const router = useRouter();
+	const phone = usePhone();
+	const [idNumber, setIdNumber] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	// Once the lookup resolves, we hold the found name here and ask the user to
+	// confirm it is them before sending the OTP.
+	const [found, setFound] = useState<{ name: string; masked: string } | null>(
+		null,
+	);
+
+	const canSubmit = isValidNationalId(idNumber) && !loading;
+
+	async function onLookup(e: React.FormEvent) {
+		e.preventDefault();
+		if (!canSubmit) return;
+		setError(null);
+		setLoading(true);
+		const res = await lookupCitizen(idNumber, phone);
+		setLoading(false);
+		if (!res.success) {
+			setError(res.error ?? "Something went wrong. Please try again.");
+			return;
+		}
+		setFound({
+			name: res.fullName ?? "Citizen",
+			masked: res.maskedPhone ?? "",
+		});
+	}
+
+	function onContinue() {
+		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
+		router.push(`/verify${q}`);
+	}
+
+	function reset() {
+		setFound(null);
+		setIdNumber("");
+		setError(null);
+	}
+
+	return (
+		<BookingShell current="identity" footerLabel="Secure verification">
+			{found ? (
+				// ── Identity found: confirm the resolved name ──
+				<div className="flex flex-1 flex-col">
+					<div className="mt-2 flex justify-center">
+						<div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-success-tint">
+							<UserCheck className="h-9 w-9 text-success" />
+						</div>
+					</div>
+					<h2 className="mt-5 text-center text-2xl font-bold text-navy">
+						We found your record
+					</h2>
+					<p className="mt-2 text-center text-sm leading-relaxed text-muted">
+						Confirm this is you. Your details come directly from the
+						national register.
+					</p>
+
+					<div className="mt-6 rounded-2xl border border-line bg-white p-4">
+						<div className="flex items-center gap-3">
+							<div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-tint text-base font-bold text-brand">
+								{found.name.charAt(0).toUpperCase()}
+							</div>
+							<div className="min-w-0">
+								<p className="truncate text-base font-bold text-ink">
+									{found.name}
+								</p>
+								<p className="text-sm text-muted">
+									ID {maskId(idNumber)}
+								</p>
+							</div>
+							<BadgeCheck className="ml-auto h-6 w-6 text-success" />
+						</div>
+					</div>
+
+					<div className="mt-4">
+						<Note variant="success">
+							{`We'll send a one-time code to ${found.masked} to confirm it's you.`}
+						</Note>
+					</div>
+
+					<div className="mt-auto pt-8">
+						<PrimaryButton onClick={onContinue}>
+							Send OTP &amp; Continue
+						</PrimaryButton>
+						<button
+							type="button"
+							onClick={reset}
+							className="mt-3 w-full text-center text-sm font-semibold text-brand"
+						>
+							Not you? Use a different ID
+						</button>
+					</div>
+				</div>
+			) : (
+				// ── Enter National ID ──
+				<form onSubmit={onLookup} className="flex flex-1 flex-col">
+					<div className="mt-2 flex justify-center">
+						<div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-tint">
+							<IdCard className="h-9 w-9 text-brand" />
+							<span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-success text-white ring-4 ring-white">
+								<BadgeCheck className="h-4 w-4" />
+							</span>
+						</div>
+					</div>
+
+					<h2 className="mt-5 text-center text-2xl font-bold text-navy">
+						Verify your identity
+					</h2>
+					<p className="mt-2 text-center text-sm leading-relaxed text-muted">
+						Enter your ID number to receive a one-time code on your
+						registered phone.
+					</p>
+
+					<div className="mt-7">
+						<FieldLabel>National ID Number</FieldLabel>
+						<div className="flex items-center gap-2 rounded-xl border border-line bg-white px-3.5 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint">
+							<IdCard className="h-5 w-5 shrink-0 text-muted" />
+							<input
+								type="number"
+								inputMode="numeric"
+								autoComplete="off"
+								value={idNumber}
+								onChange={e => {
+									setIdNumber(e.target.value);
+									setError(null);
+								}}
+								placeholder="Enter ID number"
+								className="h-13 w-full bg-transparent text-base text-ink outline-none placeholder:text-muted/70"
+							/>
+						</div>
+						{error && (
+							<p className="mt-2 text-sm text-red-600">{error}</p>
+						)}
+					</div>
+
+					<div className="mt-4">
+						<Note variant="success">
+							We will send an OTP to the phone linked to this ID.
+						</Note>
+					</div>
+
+					<div className="mt-auto pt-8">
+						<PrimaryButton
+							type="submit"
+							loading={loading}
+							disabled={!canSubmit}
+						>
+							Continue
+						</PrimaryButton>
+						<button
+							type="button"
+							className="mt-3 w-full text-center text-sm font-semibold text-brand"
+						>
+							Need help?
+						</button>
+					</div>
+				</form>
+			)}
+		</BookingShell>
+	);
 }
