@@ -1,6 +1,7 @@
 import { Lock, ChevronLeft } from "lucide-react";
 import HudumaLogo from "./HudumaLogo";
 import Stepper from "./Stepper";
+import FooterActionCard from "./FooterActionCard";
 import { TOTAL_STEPS, stepNumber, type StepKey } from "@/app/_lib/steps";
 
 /**
@@ -53,6 +54,7 @@ export default function BookingShell({
 
 			{/* Progress footer */}
 			<footer className="px-5 pb-6">
+				<FooterActionCard />
 				<div className="flex items-center gap-3">
 					<span className="text-xs font-semibold text-brand">
 						{num}/{TOTAL_STEPS}
@@ -68,7 +70,6 @@ export default function BookingShell({
 						{footerLabel}
 					</span>
 				</div>
-				<div className="mt-4 h-1 rounded-full bg-teal/70" />
 			</footer>
 		</div>
 	);

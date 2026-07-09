@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { getSession, refreshSession } from "@/app/_lib/session";
+import { getSession, refreshSession, clearSession } from "@/app/_lib/session";
 import { sendAppointmentConfirmation } from "./whatsapp";
 import type { BookingResult, BookingSelection } from "@/app/_lib/types";
 
@@ -70,4 +70,11 @@ export async function getBooking(): Promise<BookingResult | null> {
 	} catch {
 		return null;
 	}
+}
+
+/** End the booking flow and return the user to the main menu. */
+export async function returnToMainMenu(): Promise<void> {
+	const store = await cookies();
+	store.delete(BOOKING_COOKIE);
+	await clearSession();
 }

@@ -1,7 +1,10 @@
 "use client";
 
-import { MessageCircle, Download } from "lucide-react";
-import { PrimaryLink } from "@/app/_components/ui";
+import { useRouter } from "next/navigation";
+import { Home, MessageCircle, Download } from "lucide-react";
+import { PrimaryLink, SecondaryButton } from "@/app/_components/ui";
+import { usePhone } from "@/app/_lib/usePhone";
+import { returnToMainMenu } from "@/app/actions/booking";
 import { encodeTicket } from "@/app/_lib/ticket-token";
 import type { BookingResult } from "@/app/_lib/types";
 
@@ -10,7 +13,15 @@ export default function ConfirmedActions({
 }: {
 	booking: BookingResult;
 }) {
+	const router = useRouter();
+	const phone = usePhone();
 	const pdfUrl = `/api/ticket?d=${encodeTicket(booking)}`;
+	const homeHref = phone ? `/?phone=${encodeURIComponent(phone)}` : "/";
+
+	async function onMainMenu() {
+		await returnToMainMenu();
+		router.push(homeHref);
+	}
 
 	return (
 		<div className="mt-4 flex flex-col gap-3">
@@ -25,6 +36,11 @@ export default function ConfirmedActions({
 				<Download className="h-5 w-5" />
 				Download Ticket
 			</PrimaryLink>
+
+			<SecondaryButton type="button" onClick={onMainMenu} className="gap-2">
+				<Home className="h-5 w-5" />
+				Main Menu
+			</SecondaryButton>
 		</div>
 	);
 }

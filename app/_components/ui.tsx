@@ -70,6 +70,21 @@ export function PrimaryLink({
 	);
 }
 
+export function SecondaryLink({
+	children,
+	className,
+	...props
+}: React.ComponentProps<typeof Link>) {
+	return (
+		<Link
+			{...props}
+			className={`${pillBase} border border-line bg-white text-ink active:bg-surface ${className ?? "w-full"}`}
+		>
+			{children}
+		</Link>
+	);
+}
+
 /** Inline note banner. variant controls the tint + icon. */
 export function Note({
 	variant = "info",
