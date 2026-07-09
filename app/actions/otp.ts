@@ -42,11 +42,14 @@ export async function generateOtp(phoneRaw: string): Promise<OtpResult> {
 	}
 
 	try {
+		const url = `${getApiUrl()}/ussd/otp`;
+		console.info("[otp] POST", url, { msisdn });
 		const res = await axios.post(
-			`${getApiUrl()}/ussd/otp`,
+			url,
 			{ msisdn },
 			{ headers: OTP_HEADERS, timeout: 30000 },
 		);
+		console.info("[otp] send response", res.status, JSON.stringify(res.data));
 		if (res.data && res.data.success === false) {
 			return {
 				success: false,
@@ -54,7 +57,9 @@ export async function generateOtp(phoneRaw: string): Promise<OtpResult> {
 			};
 		}
 		return { success: true, maskedPhone: maskPhone(msisdn) };
-	} catch {
+	} catch (err: unknown) {
+		const e = err as { response?: { status?: number; data?: unknown }; message?: string };
+		console.error("[otp] send failed", e.response?.status, JSON.stringify(e.response?.data) || e.message);
 		return {
 			success: false,
 			error: "Couldn't send the code right now. Please try again.",
