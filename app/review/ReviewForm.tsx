@@ -15,7 +15,7 @@ import {
 	Clock,
 } from "lucide-react";
 import BookingShell from "@/app/_components/BookingShell";
-import { PrimaryButton, Note, SelectField } from "@/app/_components/ui";
+import { PrimaryButton, SecondaryButton, ButtonRow, Note, SelectField } from "@/app/_components/ui";
 import { usePhone } from "@/app/_lib/usePhone";
 import { maskPhone, maskId, formatDate } from "@/app/_lib/format";
 import {
@@ -64,7 +64,7 @@ export default function ReviewForm({ profile }: { profile: CitizenProfile }) {
 
 	function goBack() {
 		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
-		router.push(`/${q}`);
+		router.push(`/book${q}`);
 	}
 
 	async function onConfirm() {
@@ -172,9 +172,18 @@ export default function ReviewForm({ profile }: { profile: CitizenProfile }) {
 			)}
 
 			<div className="mt-6">
-				<PrimaryButton onClick={onConfirm} loading={loading}>
-					Confirm Appointment
-				</PrimaryButton>
+				<ButtonRow>
+					<SecondaryButton type="button" onClick={goBack} className="flex-1">
+						Back
+					</SecondaryButton>
+					<PrimaryButton
+						onClick={onConfirm}
+						loading={loading}
+						className="flex-1"
+					>
+						Proceed
+					</PrimaryButton>
+				</ButtonRow>
 			</div>
 		</BookingShell>
 	);

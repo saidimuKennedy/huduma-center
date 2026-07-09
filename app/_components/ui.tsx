@@ -1,18 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Check, CheckCircle2, ChevronDown, Info } from "lucide-react";
+
+const pillBase =
+	"flex h-12 min-w-0 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-colors disabled:opacity-50";
 
 export function PrimaryButton({
 	children,
 	loading = false,
+	className,
 	...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) {
 	return (
 		<button
 			{...props}
 			disabled={props.disabled || loading}
-			className={`flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3.5 text-base font-semibold text-white transition-colors active:bg-brand-dark disabled:opacity-50 ${props.className ?? ""}`}
+			className={`${pillBase} bg-proceed text-white active:bg-proceed-dark ${className ?? "w-full"}`}
 		>
 			{loading ? (
 				<span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -20,6 +25,48 @@ export function PrimaryButton({
 				children
 			)}
 		</button>
+	);
+}
+
+export function SecondaryButton({
+	children,
+	className,
+	...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+	return (
+		<button
+			{...props}
+			className={`${pillBase} border border-line bg-white text-ink active:bg-surface ${className ?? "w-full"}`}
+		>
+			{children}
+		</button>
+	);
+}
+
+export function ButtonRow({
+	children,
+	className,
+}: {
+	children: React.ReactNode;
+	className?: string;
+}) {
+	return (
+		<div className={`flex gap-3 ${className ?? ""}`}>{children}</div>
+	);
+}
+
+export function PrimaryLink({
+	children,
+	className,
+	...props
+}: React.ComponentProps<typeof Link>) {
+	return (
+		<Link
+			{...props}
+			className={`${pillBase} bg-proceed text-white active:bg-proceed-dark ${className ?? "w-full"}`}
+		>
+			{children}
+		</Link>
 	);
 }
 

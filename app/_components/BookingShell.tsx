@@ -27,18 +27,18 @@ export default function BookingShell({
 		<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-white">
 			{/* Header */}
 			<header className="px-5 pt-4">
-				<div className="relative flex items-center justify-center">
+				<div className="flex items-center gap-2">
 					{onBack && (
 						<button
 							type="button"
 							onClick={onBack}
 							aria-label="Go back"
-							className="absolute left-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-navy active:bg-line"
+							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-navy active:bg-line"
 						>
 							<ChevronLeft className="h-6 w-6" />
 						</button>
 					)}
-					<HudumaLogo height={60} />
+					<HudumaLogo />
 				</div>
 				<h1 className="mt-2 text-center text-lg font-bold text-navy">
 					Book Appointment

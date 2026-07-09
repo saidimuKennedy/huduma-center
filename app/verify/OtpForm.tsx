@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole, BadgeCheck, RotateCw } from "lucide-react";
 import BookingShell from "@/app/_components/BookingShell";
-import { PrimaryButton, Note } from "@/app/_components/ui";
+import { PrimaryButton, SecondaryButton, ButtonRow, Note } from "@/app/_components/ui";
 import { usePhone } from "@/app/_lib/usePhone";
 import { verifyOtp, generateOtp } from "@/app/actions/otp";
 
@@ -82,7 +82,7 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 
 	function goBack() {
 		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
-		router.push(`/${q}`);
+		router.push(`/book${q}`);
 	}
 
 	async function onResend() {
@@ -157,7 +157,7 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 					</button>
 					<button
 						type="button"
-						onClick={() => router.push("/")}
+						onClick={goBack}
 						className="text-sm font-semibold text-brand"
 					>
 						Wrong phone number?
@@ -178,13 +178,23 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 				</div>
 
 				<div className="mt-auto pt-8">
-					<PrimaryButton
-						type="submit"
-						loading={loading}
-						disabled={!complete}
-					>
-						Verify &amp; Continue
-					</PrimaryButton>
+					<ButtonRow>
+						<SecondaryButton
+							type="button"
+							onClick={goBack}
+							className="flex-1"
+						>
+							Back
+						</SecondaryButton>
+						<PrimaryButton
+							type="submit"
+							loading={loading}
+							disabled={!complete}
+							className="flex-1"
+						>
+							Proceed
+						</PrimaryButton>
+					</ButtonRow>
 				</div>
 			</form>
 		</BookingShell>

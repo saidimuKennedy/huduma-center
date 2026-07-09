@@ -13,15 +13,22 @@
 
   --color-success: #16a34a;
   --color-success-tint: #e8f6ee;
+  --color-proceed: #2da44e;
+  --color-proceed-dark: #26873f;
 
   --color-teal: #2fe0cf;
+
+  /* Huduma / Kenyan-flag accents for the landing page */
+  --color-hgreen: #0b8a3e;
+  --color-hgreen-dark: #0a6f33;
+  --color-hred: #d6281f;
 
   --color-ink: #0f172a;
   --color-muted: #64748b;
   --color-line: #e6e9f0;
   --color-surface: #f6f8fc;
 
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
   --radius-card: 16px;
 }
 
@@ -51,4 +58,43 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Landing-page news ticker (marquee) */
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker 45s linear infinite;
+}
+.ticker-pause:hover .animate-ticker {
+  animation-play-state: paused;
+}
+
+/* Soft float for hero accents */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.animate-floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+/* Hide scrollbars on horizontal scrollers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

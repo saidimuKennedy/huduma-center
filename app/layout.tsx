@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import MobileGuard from "@/app/_components/MobileGuard";
 import {
@@ -10,9 +10,10 @@ import {
 // The flow reads request-time params (?phone=) and cookies — never prerender.
 export const dynamic = "force-dynamic";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
+	display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -39,8 +40,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	const config = getRuntimeConfig();
 	return (
-		<html lang="en" className={geistSans.variable}>
-			<body className="min-h-dvh bg-surface antialiased">
+		<html lang="en" className={inter.variable}>
+			<body className="min-h-dvh bg-white font-sans antialiased">
 				<ConfigProvider config={config}>
 					<MobileGuard>{children}</MobileGuard>
 				</ConfigProvider>

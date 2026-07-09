@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageCircle, Download } from "lucide-react";
+import { PrimaryLink } from "@/app/_components/ui";
 import { encodeTicket } from "@/app/_lib/ticket-token";
 import type { BookingResult } from "@/app/_lib/types";
 
@@ -20,15 +21,10 @@ export default function ConfirmedActions({
 				</span>
 			</div>
 
-			<a
-				href={pdfUrl}
-				target="_blank"
-				rel="noopener"
-				className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 text-base font-semibold text-white transition-colors active:bg-brand-dark"
-			>
+			<PrimaryLink href={pdfUrl} target="_blank" rel="noopener" className="gap-2">
 				<Download className="h-5 w-5" />
 				Download Ticket
-			</a>
+			</PrimaryLink>
 		</div>
 	);
 }

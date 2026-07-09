@@ -1,20 +1,26 @@
-/* eslint-disable @next/next/no-img-element */
-// Official Huduma Kenya logo (public/huduma-logo.jpeg, 462x560).
+import Image from "next/image";
+
+/** Official header mark: Republic emblem + huduma wordmark. */
 export default function HudumaLogo({
-	height = 64,
 	className = "",
 }: {
-	height?: number;
 	className?: string;
 }) {
 	return (
-		<img
-			src="/huduma-logo.jpeg"
-			alt="Huduma Kenya — Service Excellence"
-			width={462}
-			height={560}
-			style={{ height, width: "auto" }}
-			className={className}
-		/>
+		<div className={`flex items-center gap-3 ${className}`}>
+			<div className="relative h-16 w-[92px] shrink-0 overflow-hidden sm:h-[72px] sm:w-[104px]">
+				<Image
+					src="/huduma2.jpg"
+					alt="Republic of Kenya"
+					fill
+					priority
+					className="object-cover object-left"
+					sizes="104px"
+				/>
+			</div>
+			<span className="text-[30px] font-bold leading-none tracking-tight text-ink lowercase sm:text-[34px]">
+				huduma
+			</span>
+		</div>
 	);
 }
