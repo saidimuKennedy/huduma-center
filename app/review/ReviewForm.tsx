@@ -13,10 +13,9 @@ import {
 	Home,
 	Calendar,
 	Clock,
-	ChevronDown,
 } from "lucide-react";
 import BookingShell from "@/app/_components/BookingShell";
-import { PrimaryButton, Note } from "@/app/_components/ui";
+import { PrimaryButton, Note, SelectField } from "@/app/_components/ui";
 import { usePhone } from "@/app/_lib/usePhone";
 import { maskPhone, maskId, formatDate } from "@/app/_lib/format";
 import {
@@ -51,45 +50,6 @@ function ProfileRow({
 	);
 }
 
-function SelectField({
-	icon: Icon,
-	label,
-	value,
-	onChange,
-	options,
-	display,
-}: {
-	icon: React.ElementType;
-	label: string;
-	value: string;
-	onChange: (v: string) => void;
-	options: string[];
-	display?: (v: string) => string;
-}) {
-	return (
-		<div className="flex items-center gap-3 rounded-xl border border-line bg-white px-3.5 py-2 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand-tint">
-			<Icon className="h-5 w-5 shrink-0 text-muted" />
-			<div className="relative flex-1">
-				<span className="block text-[10px] font-medium text-muted">
-					{label}
-				</span>
-				<select
-					value={value}
-					onChange={e => onChange(e.target.value)}
-					className="w-full appearance-none bg-transparent pr-6 text-sm font-medium text-ink outline-none"
-				>
-					{options.map(o => (
-						<option key={o} value={o}>
-							{display ? display(o) : o}
-						</option>
-					))}
-				</select>
-				<ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-			</div>
-		</div>
-	);
-}
-
 export default function ReviewForm({ profile }: { profile: CitizenProfile }) {
 	const router = useRouter();
 	const phone = usePhone();
@@ -101,6 +61,11 @@ export default function ReviewForm({ profile }: { profile: CitizenProfile }) {
 	const [timeSlot, setTimeSlot] = useState(TIME_SLOTS[0]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	function goBack() {
+		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
+		router.push(`/${q}`);
+	}
 
 	async function onConfirm() {
 		setLoading(true);
@@ -122,7 +87,7 @@ export default function ReviewForm({ profile }: { profile: CitizenProfile }) {
 	}
 
 	return (
-		<BookingShell current="review" footerLabel="Ready to book">
+		<BookingShell current="review" footerLabel="Ready to book" onBack={goBack}>
 			<h2 className="text-center text-2xl font-bold text-navy">
 				Review your details
 			</h2>

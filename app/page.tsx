@@ -62,7 +62,11 @@ export default function VerifyIdentityPage() {
 	}
 
 	return (
-		<BookingShell current="identity" footerLabel="Secure verification">
+		<BookingShell
+			current="identity"
+			footerLabel="Secure verification"
+			onBack={found ? reset : undefined}
+		>
 			{found ? (
 				// ── Identity found: confirm the resolved name ──
 				<div className="flex flex-1 flex-col">

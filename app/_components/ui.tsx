@@ -1,4 +1,7 @@
-import { CheckCircle2, Info } from "lucide-react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Check, CheckCircle2, ChevronDown, Info } from "lucide-react";
 
 export function PrimaryButton({
 	children,
@@ -49,5 +52,100 @@ export function FieldLabel({ children }: { children: React.ReactNode }) {
 		<label className="mb-1.5 block text-xs font-semibold text-muted">
 			{children}
 		</label>
+	);
+}
+
+export function SelectField({
+	icon: Icon,
+	label,
+	value,
+	onChange,
+	options,
+	display,
+}: {
+	icon: React.ElementType;
+	label: string;
+	value: string;
+	onChange: (v: string) => void;
+	options: string[];
+	display?: (v: string) => string;
+}) {
+	const [open, setOpen] = useState(false);
+	const rootRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!open) return;
+		function onPointerDown(e: PointerEvent) {
+			if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+		}
+		document.addEventListener("pointerdown", onPointerDown);
+		return () => document.removeEventListener("pointerdown", onPointerDown);
+	}, [open]);
+
+	const shown = display ? display(value) : value;
+
+	return (
+		<div ref={rootRef} className="relative">
+			<button
+				type="button"
+				aria-haspopup="listbox"
+				aria-expanded={open}
+				onClick={() => setOpen(o => !o)}
+				className={`flex w-full items-center gap-3 rounded-xl border bg-white px-3.5 py-2 text-left transition-colors ${
+					open
+						? "border-brand ring-2 ring-brand-tint"
+						: "border-line hover:border-brand/40"
+				}`}
+			>
+				<Icon className="h-5 w-5 shrink-0 text-muted" />
+				<div className="min-w-0 flex-1">
+					<span className="block text-[10px] font-medium text-muted">
+						{label}
+					</span>
+					<span className="block truncate text-sm font-medium text-ink">
+						{shown}
+					</span>
+				</div>
+				<ChevronDown
+					className={`h-4 w-4 shrink-0 text-muted transition-transform ${
+						open ? "rotate-180" : ""
+					}`}
+				/>
+			</button>
+
+			{open && (
+				<ul
+					role="listbox"
+					aria-label={label}
+					className="absolute top-full right-0 left-0 z-50 mt-1.5 max-h-52 overflow-y-auto rounded-xl border border-line bg-white py-1 shadow-[0_8px_24px_rgba(16,34,78,0.12)]"
+				>
+					{options.map(option => {
+						const selected = option === value;
+						const text = display ? display(option) : option;
+						return (
+							<li key={option} role="option" aria-selected={selected}>
+								<button
+									type="button"
+									onClick={() => {
+										onChange(option);
+										setOpen(false);
+									}}
+									className={`flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm transition-colors ${
+										selected
+											? "bg-brand-tint font-semibold text-brand"
+											: "text-ink hover:bg-surface"
+									}`}
+								>
+									<span className="min-w-0 flex-1 truncate">{text}</span>
+									{selected && (
+										<Check className="h-4 w-4 shrink-0 text-brand" />
+									)}
+								</button>
+							</li>
+						);
+					})}
+				</ul>
+			)}
+		</div>
 	);
 }

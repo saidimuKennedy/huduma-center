@@ -80,6 +80,11 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 		router.push(`/review${q}`);
 	}
 
+	function goBack() {
+		const q = phone ? `?phone=${encodeURIComponent(phone)}` : "";
+		router.push(`/${q}`);
+	}
+
 	async function onResend() {
 		setError(null);
 		setDigits(Array(OTP_LENGTH).fill(""));
@@ -92,7 +97,11 @@ export default function OtpForm({ maskedPhone }: { maskedPhone: string }) {
 	}
 
 	return (
-		<BookingShell current="otp" footerLabel="Phone verification">
+		<BookingShell
+			current="otp"
+			footerLabel="Phone verification"
+			onBack={goBack}
+		>
 			<form onSubmit={onSubmit} className="flex flex-1 flex-col">
 				<div className="mt-2 flex justify-center">
 					<div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-tint">

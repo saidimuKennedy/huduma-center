@@ -1,4 +1,4 @@
-import { Lock } from "lucide-react";
+import { Lock, ChevronLeft } from "lucide-react";
 import HudumaLogo from "./HudumaLogo";
 import Stepper from "./Stepper";
 import { TOTAL_STEPS, stepNumber, type StepKey } from "@/app/_lib/steps";
@@ -11,10 +11,13 @@ import { TOTAL_STEPS, stepNumber, type StepKey } from "@/app/_lib/steps";
 export default function BookingShell({
 	current,
 	footerLabel = "Secure verification",
+	onBack,
 	children,
 }: {
 	current: StepKey;
 	footerLabel?: string;
+	/** When provided, shows a back arrow in the header that calls this. */
+	onBack?: () => void;
 	children: React.ReactNode;
 }) {
 	const num = stepNumber(current);
@@ -24,7 +27,17 @@ export default function BookingShell({
 		<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-white">
 			{/* Header */}
 			<header className="px-5 pt-4">
-				<div className="flex justify-center">
+				<div className="relative flex items-center justify-center">
+					{onBack && (
+						<button
+							type="button"
+							onClick={onBack}
+							aria-label="Go back"
+							className="absolute left-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-navy active:bg-line"
+						>
+							<ChevronLeft className="h-6 w-6" />
+						</button>
+					)}
 					<HudumaLogo height={60} />
 				</div>
 				<h1 className="mt-2 text-center text-lg font-bold text-navy">
